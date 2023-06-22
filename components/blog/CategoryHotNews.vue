@@ -1,7 +1,7 @@
 <template>
      <div class="articles mb-3 border-l border-t rounded-t-[5px] border-r border-[#F5F8FF]">
                             <h3 class="p-6 border-t border-b border-[#F5F8FF] mx-auto md:text-base lg:text-2xl text-xl text-[#2B313B] font-bold">
-                                Hot News</h3>
+                                {{ translatedText($wordsArray,'Hot News') }}</h3>
 
 
                             <nuxt-link :to="'/blog/'+generateSlug(blog.blog_title)+'-'+blog.id" class="flex px-3 items-center justify-between align-middle transition-all opacity-100 border-b border-[#F5F8FF] hover:opacity-90 bg-white py-2.5" v-for="(blog,i) in hotBlogs">
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import {stripTrailingSlash,splitComma,readingTime,convertTime,generateSlug} from '../../helpers/helperFunctions'
+import {stripTrailingSlash,splitComma,readingTime,convertTime,generateSlug,translatedText} from '../../helpers/helperFunctions'
 const props = defineProps(["product_id","category_id"]);
 let imageUrl;
 let apiUrl;
@@ -41,7 +41,7 @@ imageUrl = config.public.imageUrl;
 
 console.log(props.product_id);
 console.log(props.category_id);
-
+const {$wordsArray} = useNuxtApp();
 
 const { data: hotBlogs } = await useAsyncData('hot_blogs', () => $fetch(`${apiUrl}/category-highlighted-blogs/${props.category_id}/${props.product_id}`));
 

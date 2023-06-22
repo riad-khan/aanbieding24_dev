@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
-import {readingTime,stripTrailingSlash,generateSlug,splitComma,convertTime} from '../../helpers/helperFunctions'
+import {readingTime,stripTrailingSlash,generateSlug,splitComma,convertTime,translatedText} from '../../helpers/helperFunctions'
 
 
 const onSwiper = (swiper) => {
@@ -49,6 +49,10 @@ if(props.category_id){
 }
 
 
+const {$wordsArray} = useNuxtApp();
+
+
+
 
 
 
@@ -59,6 +63,8 @@ onMounted(() => {
 })
 
 </script>
+
+
 
 <style>
 .blog-news {
@@ -133,11 +139,13 @@ span.swiper-pagination-bullet.swiper-pagination-bullet-active {
 }
 </style>
 
+
+
 <template>
     <div class="heading-area mt-6 mb-4">
-        <h3 class="flex items-center text-[#2B313B] font-bold text-[20px] mb-1">Hot News <img
+        <h3 class="flex items-center text-[#2B313B] font-bold text-[20px] mb-1">{{ translatedText($wordsArray,'Hot News') }} <img
                 src="@/assets/img/promo/fire-icon.png" class="ml-1" alt="icon"></h3>
-        <p class="tag-line text-[#6C7A93] text-sm font-normal">Popular offers with high discounts</p>
+        <p class="tag-line text-[#6C7A93] text-sm font-normal">{{ translatedText($wordsArray,'Popular offers with high discounts') }}</p>
     </div>
 
 
@@ -180,7 +188,7 @@ span.swiper-pagination-bullet.swiper-pagination-bullet-active {
                                                 <path fill-rule="evenodd" clip-rule="evenodd"
                                                     d="M5 9C7.20914 9 9 7.20914 9 5C9 2.79086 7.20914 1 5 1C2.79086 1 1 2.79086 1 5C1 7.20914 2.79086 9 5 9ZM5.5 3C5.5 2.72386 5.27614 2.5 5 2.5C4.72386 2.5 4.5 2.72386 4.5 3V5C4.5 5.13261 4.55268 5.25979 4.64645 5.35355L6.06066 6.76777C6.25592 6.96303 6.5725 6.96303 6.76777 6.76777C6.96303 6.5725 6.96303 6.25592 6.76777 6.06066L5.5 4.79289V3Z"
                                                     fill="white" />
-                                            </svg> {{ readingTime(news.content) }} Min Read
+                                            </svg> {{ readingTime(news.content) }} Min {{ translatedText($wordsArray,'Read') }} 
                                         </div>
                                     </div>
                                 </div>

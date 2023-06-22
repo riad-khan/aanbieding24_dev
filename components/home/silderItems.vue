@@ -12,7 +12,7 @@ import { stripTrailingSlash, splitComma, readingTime, convertTime } from '../../
                         <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                             <div class="product-img">
                                 <img class="object-cover w-auto rounded-t-lg h-auto mx-auto"
-                                    :src="product.provider_image_url ?product.provider_image_url:stripTrailingSlash(imageUrl)+product.orginal_product_image  " alt="image">
+                                    :src="product.product_image_url ?product.product_image_url:stripTrailingSlash(imageUrl)+product.orginal_product_image  " alt="image">
                             </div>
                             <div class="brand-logo">
                                 <img :src="product.provider_image_url" alt="icon">
@@ -29,10 +29,10 @@ import { stripTrailingSlash, splitComma, readingTime, convertTime } from '../../
                             <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ props.product.product_name }}</h4>
                         </div>
                         <div class="product-price-info flex items-center justify-between">
-                            <span class="price text-[#F22222] text-base font-black ">${{ props.product.reguler_price }}</span> <span
-                                class="original-price line-through text-[#D3D7DE] text-xs font-normal">$390</span> <span
+                            <span class="price text-[#F22222] text-base font-black ">€{{ parseInt(props.product.reguler_price) - parseInt(props.product.discount_price)  }}</span> <span
+                                class="original-price line-through text-[#D3D7DE] text-xs font-normal">€{{props.product.reguler_price}}</span> <span
                                 class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves
-                                €45.00</span> <span class="rating-area flex items-top justify-between"><span
+                                €{{ props.product.discount_price == 0 ? 0 : parseInt(props.product.reguler_price) - parseInt(props.product.reguler_price) - parseInt(props.product.discount_price) }}</span> <span class="rating-area flex items-top justify-between"><span
                                     class="icon mr-1"><svg width="14" height="13" viewBox="0 0 14 13" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path

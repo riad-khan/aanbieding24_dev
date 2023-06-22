@@ -7,7 +7,7 @@ const imageUrl = config.public.imageUrl;
 
 //const {data : offeredCategories} = await useAsyncData('offered_categories',()=>$fetch(`${apiUrl}/offered-category/`));
 
-console.log(props.category);
+
 
 
 

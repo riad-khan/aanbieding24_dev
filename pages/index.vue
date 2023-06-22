@@ -14,6 +14,7 @@ const { data: sectionData } = await useAsyncData('section_data', () => $fetch(`$
 
 
 
+
 onMounted(() => {
     refreshNuxtData('section_data');
     refreshNuxtData('get_promoData');
@@ -195,6 +196,7 @@ export default {
                 .then((response) => {
                     this.products[section_title] = response.data
 
+                   
                 })
 
             return this.products;

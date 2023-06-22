@@ -31,4 +31,12 @@ export const convertTime = (time)=>{
         return content.substring(0,maxLength) + "..."
     }
     return content;
+ };
+
+ export const translatedText = (wordsArray, keywords) =>{
+    if(wordsArray[keywords]){
+        return wordsArray[keywords];
+    }else{
+        return keywords;
+    }
  }

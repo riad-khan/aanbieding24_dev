@@ -11,10 +11,10 @@ import 'swiper/css/navigation';
 
 
 const onSwiper = (swiper) => {
-    console.log(swiper);
+    
 };
 const onSlideChange = () => {
-    console.log('slide change');
+   
 };
 const modules = [Pagination, A11y, Autoplay];
 let apiUrl;

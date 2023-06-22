@@ -33,21 +33,21 @@ const calculatePrice = (price,discount) =>{
   
     return  totalPrice ;
 }
-let count = 1
-const loadMoreProducts = () =>{
-   
-    const {data:moreProducts} = useAsyncData('more_products',()=>$fetch(`${apiUrl}/provider-products/${props.provider_name}/${count++}`));
+let count = 0
+const loadMoreProducts = async() =>{
+   count = count+1;
+  
+    const {data:moreProducts} = await useAsyncData('more_products',()=>$fetch(`${apiUrl}/provider-products/${props.provider_name}/${count}`));
 
+    console.log(moreProducts.value);
+    
+    
     moreProducts.value.map((item,i)=>{
         provider_products2.value.push(item)
     })
     
     
-    
-    
 }
-
-
 
 
 </script>
@@ -212,7 +212,7 @@ export default {
                         </div>
                         <input type="text" id="default-search"
                             class="rounded-md bg-white border border-[#F5F8FF] text-[#6C7A93] font-normal text-xs focus:ring-[#3b82f6] focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full md:w-[370px] p-3 pl-10"
-                            placeholder="Search Articles" name="search" required="">
+                            placeholder="Search products" name="search" required="">
                     </div>
                 </form>
 

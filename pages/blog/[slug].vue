@@ -1,6 +1,6 @@
 <script setup>
 import CategoryHotNews from '../../components/blog/CategoryHotNews.vue';
-import { stripTrailingSlash, splitComma, readingTime, convertTime } from '../../helpers/helperFunctions'
+import { stripTrailingSlash, splitComma, readingTime, convertTime,translatedText } from '../../helpers/helperFunctions'
 const route = useRoute();
 
 
@@ -12,7 +12,7 @@ const id = route.params.slug;
 const idArray = id.split('-');
 const finalId = idArray.pop();
 
-
+const {$wordsArray} = useNuxtApp();
 
 
 const { data: blog_details } = await useAsyncData('blog_details', () => $fetch(`${apiUrl}/blog-details/${finalId}`));
@@ -39,7 +39,7 @@ onMounted(() => {
                     <h1 class="font-bold text-[32px] text-[#2B313B] leading-none mb-6">{{ blog_details[0].blog_title }}</h1>
                     <div class="post-info flex-none md:flex md:justify-between">
                         <span class="publish-date-time  text-[#6C7A93] font-normal text-xs">{{
-                            convertTime(blog_details[0].created_at) }} • Read: {{ readingTime(blog_details[0].content) }}
+                            convertTime(blog_details[0].created_at) }} • {{ translatedText($wordsArray,'Read') }}: {{ readingTime(blog_details[0].content) }}
                             min</span>
 
                         <span class="social-shear flex items-center">
@@ -102,7 +102,7 @@ onMounted(() => {
                 </div>
                 <div class="bottom-part flex-none lg:flex lg:justify-between">
                     <div class="w-full lg:w-auto more-links">
-                        <h5 class=" font-bold text-xs text-black mb-2">Tags</h5>
+                        <h5 class=" font-bold text-xs text-black mb-2">{{ translatedText($wordsArray,'tags') }}</h5>
                         <div class="flex-wrap flex md:flex-none items-center">
 
 
@@ -118,7 +118,7 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="w-full mt-4 lg:mt-0 lg:w-auto social-links text-left">
-                        <h5 class="font-bold text-xs text-black mb-2">Share this article</h5>
+                        <h5 class="font-bold text-xs text-black mb-2">{{ translatedText($wordsArray,'share this article') }}</h5>
                         <ul class="flex flex-row justify-start">
                             <li class="flex mr-2"> <a href="#" class=" mr-2"><span class="flex relative">
                                         <span

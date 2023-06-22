@@ -4,7 +4,7 @@ const props = defineProps(["provider_list", "section_title"]);
 const config = useRuntimeConfig();
 const imageUrl = config.public.imageUrl;
 
-console.log(props.provider_list);
+
 
 </script>
 <template>

@@ -1,5 +1,5 @@
 <script setup>
-import { stripTrailingSlash, splitComma, readingTime, convertTime, generateSlug } from '../../helpers/helperFunctions';
+import { stripTrailingSlash, splitComma, readingTime, convertTime, generateSlug,translatedText } from '../../helpers/helperFunctions';
 
 const config = useRuntimeConfig();
 const apiUrl = config.public.api;
@@ -36,7 +36,7 @@ onMounted(() => {
     refreshNuxtData('categories');
 })
 
-
+const {$wordsArray} = useNuxtApp()
 
 
 
@@ -114,8 +114,8 @@ export default {
 </style>
 <template>
     <div class="heading-area mt-6 mb-4">
-        <h3 class="text-[#2B313B] font-bold text-[20px] mb-1">Select the Insight you needs </h3>
-        <p class="tag-line text-[#6C7A93] text-sm font-normal">View all Loungeset Products</p>
+        <h3 class="text-[#2B313B] font-bold text-[20px] mb-1">{{ translatedText($wordsArray,'select the insight you need ') }} </h3>
+        <p class="tag-line text-[#6C7A93] text-sm font-normal">{{ translatedText($wordsArray,'View all Loungeset Products') }}</p>
     </div>
     <div class="filter-wrapper flex flex-col sm:flex-row items-center justify-between">
         <div class="flex-none w-full sm:w-auto sm:flex items-center justify-start">
@@ -123,7 +123,7 @@ export default {
                 <div class="mb-1 w-full">
                     <div class="no-label w-full sm:w-32">
                         <div class="select" id="popular">
-                            <div class="selectBtn filter-icon" data-type="firstOption"> {{ props.category_name ? props.category_name : "Lattest News" }}</div>
+                            <div class="selectBtn filter-icon" data-type="firstOption"> {{ props.category_name ? props.category_name : translatedText($wordsArray,'Lattest News') }}</div>
                             <div class="selectDropdown">
 
                                 <div  class="option" v-for="(category, i) in categories" :key="i"
@@ -153,7 +153,7 @@ export default {
                     </div>
                     <input type="text" id="default-search"
                         class="rounded-md bg-white border border-[#F5F8FF] text-[#6C7A93] font-normal text-xs focus:ring-[#3b82f6] focus:outline-none focus:border-[#3b82f6] block flex-1 w-full md:w-[255px] p-3 pl-10"
-                        placeholder="Search Articles" v-model="searchKeyWords"  name="search">
+                        :placeholder="translatedText($wordsArray,'Search Articles')" v-model="searchKeyWords"  name="search">
                 </div>
             </form>
         </div>
@@ -186,7 +186,7 @@ export default {
                                 fill="#6C7A93" />
                         </svg>
 
-                        {{ readingTime(blog.content) }} minutes
+                        {{ readingTime(blog.content) }} {{ translatedText($wordsArray,'minutes') }}
                     </span>
                 </div>
             </div>
@@ -202,7 +202,7 @@ export default {
                         fill="currentColor"></path>
                 </svg>
 
-                Read More
+               {{ translatedText($wordsArray,'Read more') }}
             </button>
         </nuxt-link>
 
