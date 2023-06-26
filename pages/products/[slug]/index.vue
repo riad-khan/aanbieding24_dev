@@ -8,14 +8,41 @@ const config = useRuntimeConfig();
 apiUrl = config.public.api;
 imageUrl = config.public.imageUrl;
 
+const stockStatus = ref(true);
+const showRefub = ref(false);
+const offerShops = ref([]);
+
+
 const id = route.params.slug;
 const idArray = id.split('-');
 const finalId = idArray.pop()
 
 const { data: details } = await useAsyncData('product_details', () => $fetch(`${apiUrl}/product-details/${finalId}`));
-const { data: relatedFeeds } = await useAsyncData('relatedFeeds', () => $fetch(`${apiUrl}/related-product-feeds/${finalId}`))
+
+const { data: relatedFeedsWithoutFilter } = await useAsyncData('relatedFeedsWithoutFilter', () => $fetch(`${apiUrl}/related-product-feeds-withoutFilter/${finalId}`))
+
+const { data: relatedFeeds } = await useAsyncData('relatedFeeds', () => $fetch(`${apiUrl}/related-product-feeds/${finalId}/${stockStatus.value}/${showRefub.value}`));
+
+const {data: reviewCount} = await useAsyncData('review_count',()=>$fetch(`${apiUrl}/products-review-count/${finalId}`));
+
+relatedFeeds.value.map((item)=>{
+    offerShops.value.push(item)
+})
 
 
+
+
+
+
+const filterOfferShop = async()=>{
+    const { data: relatedFeedsFiltered } = await useAsyncData('relatedFeeds', () => $fetch(`${apiUrl}/related-product-feeds/${finalId}/${stockStatus.value}/${showRefub.value}`))
+    
+    offerShops.value = [];
+
+    relatedFeedsFiltered.value.map((item)=>{
+        offerShops.value.push(item)
+    })
+}
 
 
 onMounted(() => {
@@ -314,7 +341,8 @@ input:checked+.slider:before {
                     <h3 class="text-[#2B313B] font-bold text-xl mb-3">{{ details[0].product_title }}</h3>
                     <div class="rating-area flex align-middle justify-between md:justify-start mb-5">
                         <div class=" flex flex-col items-start md:flex-row md:items-center">
-                            <div class="flex items-center justify-between">
+                           
+                            <div  class="flex items-center justify-between">
                                 <svg width="18" height="17" viewBox="0 0 18 17" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -345,9 +373,13 @@ input:checked+.slider:before {
                                         d="M8.13024 0.533005C8.51342 -0.142371 9.48658 -0.142372 9.86976 0.533003L11.9616 4.22001C12.1041 4.47108 12.3481 4.64834 12.6308 4.70623L16.7838 5.55636C17.5445 5.71208 17.8453 6.63762 17.3214 7.21075L14.4612 10.3396C14.2665 10.5526 14.1733 10.8394 14.2056 11.1263L14.6804 15.3387C14.7674 16.1103 13.9801 16.6823 13.2731 16.3612L9.4136 14.6079C9.15079 14.4885 8.84921 14.4885 8.5864 14.6079L4.72688 16.3612C4.0199 16.6823 3.23259 16.1103 3.31957 15.3387L3.79439 11.1263C3.82672 10.8395 3.73353 10.5526 3.53877 10.3396L0.678637 7.21075C0.154726 6.63762 0.45545 5.71208 1.21618 5.55636L5.36916 4.70623C5.65195 4.64834 5.89593 4.47108 6.03838 4.22002L8.13024 0.533005Z"
                                         fill="#A4BCE6" />
                                 </svg>
-                                <span class="review-status text-xs text-[#2B313B] font-bold ml-2">8.5</span>
+
+                             
+                                <span class="review-status text-xs text-[#2B313B] font-bold ml-2">{{ reviewCount[0].average}}</span>
                             </div>
-                            <span class="total-review text-xs text[#6C7A93] font-normal ml-0 mt-2 md:mt-0 md:ml-2">(10089
+                            
+
+                            <span class="total-review text-xs text[#6C7A93] font-normal ml-0 mt-2 md:mt-0 md:ml-2">({{ reviewCount[0].count }}
                                 Reviews)</span>
                         </div>
                         <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs ml-1"><img
@@ -415,9 +447,9 @@ input:checked+.slider:before {
 
 
                     <div class="brand-list-wrapper rounded-md border border-[#F5F8FF] bg-white">
-                        <div v-for="(feedProduct,i) in relatedFeeds" class="brands-s flex items-center justify-between py-4 px-3 border-b border-[#F5F8FF]">
+                        <div v-for="(feedProduct,i) in relatedFeedsWithoutFilter" class="brands-s flex items-center justify-between py-4 px-3 border-b border-[#F5F8FF]">
                             <div class="modal-brand-logo flex h-4 w-auto">
-                                <img src="@/assets/img/providers/bol.com-big.png" class="w-full h-auto" alt="logo">
+                                <img :src="feedProduct.provider_image_url" class="w-full h-auto" alt="logo">
                             </div>
                             <div class="">
                                 <div class="price flex items-center align-bottom">
@@ -483,15 +515,19 @@ input:checked+.slider:before {
                         <label class="switch-btn">
                             <span class="mr-2 switch-text">Only in Stock</span>
                             <div class="switch">
-                                <input type="checkbox" checked>
+                                <input v-model="stockStatus" @change="filterOfferShop()" type="checkbox" >
                                 <span class="slider round"></span>
+
+              
 
                             </div>
                         </label>
+
+                     
                         <label class="switch-btn">
                             <span class="mr-2 switch-text">Show Refurbished</span>
                             <div class="switch">
-                                <input type="checkbox">
+                                <input  type="checkbox" v-model="showRefub" @change="filterOfferShop()">
                                 <span class="slider round"></span>
 
                             </div>
@@ -511,10 +547,10 @@ input:checked+.slider:before {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(offerShop,i) in relatedFeeds " class="brands-s border-b border-[#F5F8FF]">
+                                <tr v-for="(offerShop,i) in offerShops " class="brands-s border-b border-[#F5F8FF]">
                                     <td class="py-4 px-3 ">
                                         <div class="modal-brand-logo flex h-4 w-auto"><img
-                                                src="@/assets/img/providers/bol.com-big.png" class="w-auto h-auto"
+                                                :src="offerShop.provider_image_url" class="w-auto h-auto"
                                                 alt="logo"></div>
                                     </td>
                                     <td>
@@ -525,7 +561,7 @@ input:checked+.slider:before {
                                             <span
                                                 class="product-status hidden md:flex items-center text-[#1D9E54] font-normal text-xs"><img
                                                     src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4"
-                                                    alt="icon"> -24% (Price Drop)</span>
+                                                    alt="icon"> {{offerShop.discount_price}}% (Price Drop)</span>
                                         </div>
                                         <div class="shipping md:hidden block text-xs text-[#26BA65] font-bold"> Free
                                             Shipping </div>
@@ -596,7 +632,7 @@ input:checked+.slider:before {
             </div>
 
             
-           <Reviews />
+           <Reviews :product_id ="finalId" :product_image="details[0].url"/>
 
             <!-- Product description start -->
 
@@ -717,65 +753,9 @@ input:checked+.slider:before {
                             </div>
                         </div>
                     </div>
-                    <div class="notification-form side-bar ml-0 md:ml-5 basis-full md:basis-2/5 lg:w-[392px]">
-                        <h5 class="text-black text-2xl font-bold mb-4 md:mb-10">Get a Price Notification</h5>
-                        <div class="form-area-a p-6 rounded-[5px] border border-[#F5F8FF] bg-white">
-                            <form action="https://bereken.webonedevs.com/internet-package" method="post"
-                                class="flex flex-col">
-                                <input type="hidden" name="_token" value="">
-                                <div class="mb-3">
-                                    <label for="" class="block mb-2 text-sm  font-normal text-black">Name</label>
-                                    <div class="flex">
-                                        <input type="text" name="name"
-                                            class="rounded-[5px] bg-white border border-[#A4BCE6] text-[#6C7A93] font-normal text-xs  focus:ring-none focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full p-2.5"
-                                            placeholder="Name">
-                                    </div>
 
-                                </div>
-                                <div class="mb-3">
-                                    <label for="" class="block mb-2 text-sm  font-normal text-black">Price lower
-                                        than</label>
-                                    <div class="flex">
-                                        <input type="text" name="price"
-                                            class="rounded-[5px] bg-white border border-[#A4BCE6] text-[#6C7A93] font-normal text-xs  focus:ring-none focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full p-2.5"
-                                            placeholder="$250">
-                                    </div>
-
-                                </div>
-                                <div class="mb-3">
-                                    <label for="" class="block mb-2 text-sm  font-normal text-black">Email Address</label>
-                                    <div class="flex">
-                                        <input type="email" name="email"
-                                            class="rounded-[5px] bg-white border border-[#A4BCE6] text-[#6C7A93] font-normal text-xs  focus:ring-none focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full p-2.5"
-                                            placeholder="$250">
-                                    </div>
-
-                                </div>
-                                <div class="mb-3">
-                                    <label for="" class="block mb-2 text-sm  font-normal text-black">Email Address</label>
-                                    <div class="flex">
-                                        <input type="email" name="email"
-                                            class="rounded-[5px] bg-white border border-[#A4BCE6] text-[#6C7A93] font-normal text-xs  focus:ring-none focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full p-2.5"
-                                            placeholder="Email Address">
-                                    </div>
-
-                                </div>
-                                <div class="mb-3">
-                                    <label for="" class="block mb-2 text-sm  font-normal text-black">Phone Number</label>
-                                    <div class="flex">
-                                        <input type="text" name="phone"
-                                            class="rounded-[5px] bg-white border border-[#A4BCE6] text-[#6C7A93] font-normal text-xs  focus:ring-none focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full p-2.5"
-                                            placeholder="Phone Number">
-                                    </div>
-
-                                </div>
-                                <button type="submit"
-                                    class="p-3 text-center outline-btn btn-translate-z bg-[#112954] text-white w-full text-sm  font-bold rounded-[5px]">Get
-                                    Notifcation</button>
-
-                            </form>
-                        </div>
-                    </div>
+                    <productsPriceNotification />
+                    
                 </div>
             </div>
 

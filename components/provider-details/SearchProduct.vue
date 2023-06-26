@@ -1,4 +1,7 @@
 <script setup>
+import axios from 'axios';
+import { translatedText, generateSlug } from '../../helpers/helperFunctions'
+
 const props = defineProps(["provider_name"]);
 const config = useRuntimeConfig();
 const apiUrl = config.public.api;
@@ -6,46 +9,150 @@ const imageUrl = config.public.imageUrl;
 let page = 0;
 let providerProducts = [];
 
-console.log(props.provider_name);
+let totalFilterProducts = ref([]);
+let filterProductsArray2 = ref([]);
+const { $wordsArray } = useNuxtApp();
+const filterType = ref("");
+const filterOrder = ref("");
+let topTenProductArray = ref([]);
 
-const {data:products} = await useAsyncData('provider_products',()=>$fetch(`${apiUrl}/provider-products/${props.provider_name}/${page}`));
+let defaultView = ref(true);
+let filterView = ref(false);
+let top = ref(false)
+let searchView = ref(false)
+let keywords = ref("");
+let searchProducts = ref([]);
 
-onMounted(()=>{
-    refreshNuxtData("provider_products")
+
+
+const { data: products } = await useAsyncData('provider_products', () => $fetch(`${apiUrl}/provider-products/${props.provider_name}/${page}`));
+//filter section code
+
+const { data: providers } = await useAsyncData('providers', () => $fetch(`${apiUrl}/provider-list`))
+
+
+
+
+const filterProducts = async (type, order) => {
+    filterType.value = type;
+    filterOrder.value = order;
+    const provider_name = props.provider_name;
+    const page = 0;
+    defaultView.value = false;
+    filterView.value = true;
+    searchView.value = false;
+    top.value = false;
+
+    const productsData = await fetchFilterProductsPromise(filterOrder.value, filterType.value, page, provider_name)
+    totalFilterProducts.value = [];
+
+    totalFilterProducts.value = productsData
+
+
+    filterProductsArray2.value = productsData.slice(12)
+
+
+
+
+}
+let filterPage = 0;
+
+
+
+
+const fetchFilterProductsPromise = (filterOrder, type, page, provider_name) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`${apiUrl}/filter-provider-products-order/${filterOrder}/${type}/${page}/${provider_name}`)
+
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    })
+}
+
+const redirectProviders = (slug) => {
+    const router = useRouter();
+    router.push('/provider-details/' + slug)
+}
+
+const loadMoreFilterProducts = async () => {
+    filterPage = filterPage + 1;
+    const provider_name = props.provider_name;
+    const moreProductsData = await fetchFilterProductsPromise(filterOrder.value, filterType.value, filterPage, provider_name);
+
+
+    moreProductsData.map((item) => {
+
+        filterProductsArray2.value.push(item)
+    })
+
+
+
+}
+
+const topTen = async () => {
+    const { data: topTenProducts } = await useAsyncData('top_ten', () => $fetch(`${apiUrl}/provider-top-ten/${props.provider_name}`));
+    defaultView.value = false;
+    filterView.value = false;
+    searchView.value = false;
+    top.value = true;
+
+    topTenProductArray.value = topTenProducts.value
+
+    console.log(topTenProductArray.value);
     
-})
+}
+//end filter codes
 
+onMounted(() => {
+    refreshNuxtData("provider_products")
+
+})
+//default products
 const provider_products2 = ref([]);
 
-let provider_products1Array = products.value.slice(0,8);
+let provider_products1Array = products.value.slice(0, 8);
 let provider_products2ndArray = products.value.slice(12);
 
-provider_products2ndArray.map((item)=>{
+provider_products2ndArray.map((item) => {
     provider_products2.value.push(item)
 })
 
-const calculatePrice = (price,discount) =>{
+const calculatePrice = (price, discount) => {
     let discountPrice = price * discount / 100;
     let priceString = JSON.stringify(discountPrice);
-    let finalPriceWithMinus = parseInt(priceString.replace("-",""));
+    let finalPriceWithMinus = parseInt(priceString.replace("-", ""));
 
     let totalPrice = price - finalPriceWithMinus
-  
-    return  totalPrice ;
+
+    return totalPrice;
 }
 let count = 0
-const loadMoreProducts = async() =>{
-   count = count+1;
-  
-    const {data:moreProducts} = await useAsyncData('more_products',()=>$fetch(`${apiUrl}/provider-products/${props.provider_name}/${count}`));
+const loadMoreProducts = async () => {
+    count = count + 1;
 
-    console.log(moreProducts.value);
-    
-    
-    moreProducts.value.map((item,i)=>{
+    const { data: moreProducts } = await useAsyncData('more_products', () => $fetch(`${apiUrl}/provider-products/${props.provider_name}/${count}`));
+
+    moreProducts.value.map((item, i) => {
         provider_products2.value.push(item)
     })
-    
+
+}
+
+//search Products
+
+const searchProviderProducts = async()=>{
+    const {data:search} = await useAsyncData('search_products',()=>$fetch(`${apiUrl}/provider-product-search/${keywords.value}/0`));
+
+    defaultView.value = false;
+    filterView.value = false;
+  
+    top.value = false;
+    searchView.value = true;
+    searchProducts.value = search.value
     
 }
 
@@ -109,7 +216,7 @@ export default {
 }
 
 .object-cover {
-  
+
     object-fit: cover;
     height: 163px;
 }
@@ -117,26 +224,27 @@ export default {
 
 <template>
     <div class="product-search-area">
-        <h2 class="flex items-center text-[#2B313B] font-bold text-[20px] mb-1">Search for Product</h2>
-        <p class="tag-line text-[#6C7A93] text-sm font-normal mb-6">View all Loungeset Products</p>
+        <h2 class="flex items-center text-[#2B313B] font-bold text-[20px] mb-1">{{ translatedText($wordsArray,'Search for products') }}</h2>
+        <p class="tag-line text-[#6C7A93] text-sm font-normal mb-6">{{ translatedText($wordsArray,'View all Loungeset Products') }}</p>
         <div class="filter-wrapper flex items-center justify-between">
             <form action="" class="flex flex-col text-left">
                 <div class="mb-1">
                     <div class="no-label w-full sm:w-28">
                         <div class="select" id="popular">
-                            <div class="selectBtn filter-icon" data-type="firstOption"> Popular</div>
+                            <div class="selectBtn filter-icon" data-type="firstOption"> {{
+                                translatedText($wordsArray, 'Sort') }}</div>
                             <div class="selectDropdown">
 
-                                <div class="option" data-value="all" data-type="firstOption">Popular 1</div>
-                                <div class="option" data-type="secondOption" data-value="internet-tv">
-                                    Popular 2
+
+                                <div class="option" data-type="secondOption" @click="filterProducts('sort', 'ASC')"
+                                    data-value="ASC">
+                                    A-Z
                                 </div>
-                                <div class="option" data-type="secondOption" data-value="internet-bellen">
-                                    Popular 3
+                                <div class="option" @click="filterProducts('sort', 'DESC')" data-type="secondOption"
+                                    data-value="DESC">
+                                    Z-A
                                 </div>
-                                <div class="option" data-type="secondOption" data-value="internet">
-                                    Popular 4
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -146,18 +254,18 @@ export default {
                 <div class="mb-1">
                     <div class="no-label w-full sm:w-28">
                         <div class="select" id="price">
-                            <div class="selectBtn" data-type="firstOption"> Price</div>
+                            <div class="selectBtn" data-type="firstOption">{{ translatedText($wordsArray, 'Filter') }} </div>
                             <div class="selectDropdown">
-                                <div class="option" data-value="all" data-type="firstOption">Price 1</div>
-                                <div class="option" data-type="secondOption" data-value="internet-tv">
-                                    Price 2
+
+                                <div class="option" @click="filterProducts('price', 'ASC')" data-type="secondOption"
+                                    data-value="ASC">
+                                    {{ translatedText($wordsArray, ' price Low to high') }}
                                 </div>
-                                <div class="option" data-type="secondOption" data-value="internet-bellen">
-                                    Price 3
+                                <div class="option" @click="filterProducts('price', 'DESC')" data-type="secondOption"
+                                    data-value="DESC">
+                                    {{ translatedText($wordsArray, ' price high to low') }}
                                 </div>
-                                <div class="option" data-type="secondOption" data-value="internet">
-                                    Price 4
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -169,16 +277,11 @@ export default {
                         <div class="select" id="provider">
                             <div class="selectBtn" data-type="firstOption"> Provider</div>
                             <div class="selectDropdown">
-                                <div class="option" data-value="all" data-type="firstOption">Provider 1</div>
-                                <div class="option" data-type="secondOption" data-value="internet-tv">
-                                    Provider 2
-                                </div>
-                                <div class="option" data-type="secondOption" data-value="internet-bellen">
-                                    Provider 3
-                                </div>
-                                <div class="option" data-type="secondOption" data-value="internet">
-                                    Provider 4
-                                </div>
+
+                                <div v-for="(provider, i) in providers" class="option" data-value="all"
+                                    @click="redirectProviders(generateSlug(provider.provider_name))"
+                                    data-type="firstOption">{{ provider.provider_name }}</div>
+
                             </div>
                         </div>
                     </div>
@@ -186,7 +289,7 @@ export default {
             </form>
 
             <div class="btn-area">
-                <button
+                <button @click="topTen()"
                     class="flex items-center text-[#fff] text-xs font-bold bg-[#EF8421] transition hover:bg-[#d2751e] px-3 py-2 mr-2 md:mr-8 rounded-md"><svg
                         width="16" height="16" viewBox="0 0 16 16" class="mr-2" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -198,7 +301,7 @@ export default {
 
             </div>
             <div class="search-bar">
-                <form action="" method="post">
+                <form @submit.prevent="searchProviderProducts()">
                     <input type="hidden" name="_token" value="vOF2uTBMPlIqqKU8deg24rn7JLnKQ5wZblzxnmL4">
                     <div class="relative single-field-wrapper">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -210,9 +313,9 @@ export default {
                                 </svg>
                             </button>
                         </div>
-                        <input type="text" id="default-search"
+                        <input type="text" id="default-search" v-model="keywords"
                             class="rounded-md bg-white border border-[#F5F8FF] text-[#6C7A93] font-normal text-xs focus:ring-[#3b82f6] focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full md:w-[370px] p-3 pl-10"
-                            placeholder="Search products" name="search" required="">
+                            :placeholder="translatedText($wordsArray,'Search products')" name="search" required="">
                     </div>
                 </form>
 
@@ -223,7 +326,9 @@ export default {
 
     <div class="center mt-7 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4 justify-between">
 
-        <div class="item mt-5" v-for="(product,i) in provider_products1Array" :key="i">
+        <!-- Default Product -->
+        <div v-if="defaultView === true" class="item mt-5"
+            v-for="(product, i) in provider_products1Array" :key="i">
             <a href="#"
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
@@ -236,17 +341,22 @@ export default {
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
-                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state }}</span>
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
                     <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
-                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon"> ${{product.discount_price}}%</span>
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
                 </div>
                 <div class="product-title mt-2">
                     <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
                 </div>
                 <div class="product-price-info flex items-center justify-between">
-                    <span class="price text-[#F22222] text-base font-black ">${{calculatePrice(product.reguler_price,product.discount_price) }}</span> <span
-                        class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{ product.reguler_price }}</span> <span
-                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{ product.reguler_price - calculatePrice(product.reguler_price,product.discount_price)  }}</span>
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{ calculatePrice(product.reguler_price, product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+    product.reguler_price }}</span> <span
+                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                            product.reguler_price - calculatePrice(product.reguler_price, product.discount_price) }}</span>
                     <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
                                 height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -263,6 +373,158 @@ export default {
                 </div>
             </a>
         </div>
+
+        <!-- Top ten products -->
+
+        <div v-else-if="top === true" class="item mt-5"
+            v-for="(product, i) in topTenProductArray" >
+            <a href="#"
+                class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
+                <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
+                    <div class="product-img">
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                            alt="image">
+                    </div>
+                    <div class="brand-logo">
+                        <img :src="product.provider_image" alt="icon">
+                    </div>
+                </div>
+                <div class="product-info mt-2 flex items-center justify-between">
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
+                    <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
+                </div>
+                <div class="product-title mt-2">
+                    <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
+                </div>
+                <div class="product-price-info flex items-center justify-between">
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{ calculatePrice(product.reguler_price, product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+    product.reguler_price }}</span> <span
+                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                            product.reguler_price - calculatePrice(product.reguler_price, product.discount_price) }}</span>
+                    <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
+                                height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M6.54652 0.976481C6.72572 0.590614 7.27429 0.590616 7.45348 0.976482L8.86602 4.01808C8.93887 4.17496 9.08763 4.28304 9.25934 4.30385L12.5886 4.70734C13.0109 4.75853 13.1804 5.28025 12.8688 5.56992L10.4126 7.85323C10.2859 7.97099 10.2291 8.14587 10.2624 8.31561L10.9074 11.6066C10.9892 12.0241 10.5454 12.3465 10.1737 12.1397L7.24309 10.5092C7.09194 10.4252 6.90806 10.4252 6.75691 10.5092L3.82634 12.1397C3.45456 12.3465 3.01076 12.0241 3.09259 11.6066L3.73763 8.31561C3.7709 8.14587 3.71408 7.97099 3.58739 7.85323L1.13116 5.56992C0.819553 5.28025 0.989072 4.75853 1.41143 4.70734L4.74066 4.30385C4.91237 4.28304 5.06113 4.17495 5.13398 4.01808L6.54652 0.976481Z"
+                                    fill="#EFBC21" />
+                            </svg>
+                        </span> <span class="rating-count text-[#6C7A93] text-xs font-normal">4.9 | 230</span></span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <a :href="product.affiliate_link" target="_blank"
+                        class="btn-translate-z bg-[#112954] opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2 w-full"><span
+                            class="flex items-center"><img src="@/assets/img/icons/offer-arrow-24.svg"
+                                class="mr-2 h-4 w-4 float-right" alt="icon"> View Offer </span></a>
+                </div>
+            </a>
+        </div>
+
+
+        <!-- Search products -->
+
+        <div v-else-if="searchView === true" class="item mt-5"
+            v-for="(product, i) in searchProducts.slice(0,8)" >
+            <a href="#"
+                class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
+                <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
+                    <div class="product-img">
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                            alt="image">
+                    </div>
+                    <div class="brand-logo">
+                        <img :src="product.provider_image" alt="icon">
+                    </div>
+                </div>
+                <div class="product-info mt-2 flex items-center justify-between">
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
+                    <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
+                </div>
+                <div class="product-title mt-2">
+                    <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
+                </div>
+                <div class="product-price-info flex items-center justify-between">
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{ calculatePrice(product.reguler_price, product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+    product.reguler_price }}</span> <span
+                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                            product.reguler_price - calculatePrice(product.reguler_price, product.discount_price) }}</span>
+                    <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
+                                height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M6.54652 0.976481C6.72572 0.590614 7.27429 0.590616 7.45348 0.976482L8.86602 4.01808C8.93887 4.17496 9.08763 4.28304 9.25934 4.30385L12.5886 4.70734C13.0109 4.75853 13.1804 5.28025 12.8688 5.56992L10.4126 7.85323C10.2859 7.97099 10.2291 8.14587 10.2624 8.31561L10.9074 11.6066C10.9892 12.0241 10.5454 12.3465 10.1737 12.1397L7.24309 10.5092C7.09194 10.4252 6.90806 10.4252 6.75691 10.5092L3.82634 12.1397C3.45456 12.3465 3.01076 12.0241 3.09259 11.6066L3.73763 8.31561C3.7709 8.14587 3.71408 7.97099 3.58739 7.85323L1.13116 5.56992C0.819553 5.28025 0.989072 4.75853 1.41143 4.70734L4.74066 4.30385C4.91237 4.28304 5.06113 4.17495 5.13398 4.01808L6.54652 0.976481Z"
+                                    fill="#EFBC21" />
+                            </svg>
+                        </span> <span class="rating-count text-[#6C7A93] text-xs font-normal">4.9 | 230</span></span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <a :href="product.affiliate_link" target="_blank"
+                        class="btn-translate-z bg-[#112954] opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2 w-full"><span
+                            class="flex items-center"><img src="@/assets/img/icons/offer-arrow-24.svg"
+                                class="mr-2 h-4 w-4 float-right" alt="icon"> View Offer </span></a>
+                </div>
+            </a>
+        </div>
+
+        <!-- Filtered products -->
+
+        <div v-else class="item mt-5" v-for="(product, i) in totalFilterProducts.slice(0, 8)">
+            <a href="#"
+                class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
+                <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
+                    <div class="product-img">
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                            alt="image">
+                    </div>
+                    <div class="brand-logo">
+                        <img :src="product.provider_image" alt="icon">
+                    </div>
+                </div>
+                <div class="product-info mt-2 flex items-center justify-between">
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
+                    <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
+                </div>
+                <div class="product-title mt-2">
+                    <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
+                </div>
+                <div class="product-price-info flex items-center justify-between">
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{ calculatePrice(product.reguler_price, product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+    product.reguler_price }}</span> <span
+                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                            product.reguler_price - calculatePrice(product.reguler_price, product.discount_price) }}</span>
+                    <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
+                                height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M6.54652 0.976481C6.72572 0.590614 7.27429 0.590616 7.45348 0.976482L8.86602 4.01808C8.93887 4.17496 9.08763 4.28304 9.25934 4.30385L12.5886 4.70734C13.0109 4.75853 13.1804 5.28025 12.8688 5.56992L10.4126 7.85323C10.2859 7.97099 10.2291 8.14587 10.2624 8.31561L10.9074 11.6066C10.9892 12.0241 10.5454 12.3465 10.1737 12.1397L7.24309 10.5092C7.09194 10.4252 6.90806 10.4252 6.75691 10.5092L3.82634 12.1397C3.45456 12.3465 3.01076 12.0241 3.09259 11.6066L3.73763 8.31561C3.7709 8.14587 3.71408 7.97099 3.58739 7.85323L1.13116 5.56992C0.819553 5.28025 0.989072 4.75853 1.41143 4.70734L4.74066 4.30385C4.91237 4.28304 5.06113 4.17495 5.13398 4.01808L6.54652 0.976481Z"
+                                    fill="#EFBC21" />
+                            </svg>
+                        </span> <span class="rating-count text-[#6C7A93] text-xs font-normal">4.9 | 230</span></span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <a :href="product.affiliate_link" target="_blank"
+                        class="btn-translate-z bg-[#112954] opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2 w-full"><span
+                            class="flex items-center"><img src="@/assets/img/icons/offer-arrow-24.svg"
+                                class="mr-2 h-4 w-4 float-right" alt="icon"> View Offer </span></a>
+                </div>
+            </a>
+        </div>
+
+       
+
+
+
 
     </div>
 
@@ -273,9 +535,11 @@ export default {
     <!-- subscrition End -->
 
 
+
     <div class="center mt-7 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4 justify-between">
 
-        <div class="item mt-5" v-for="(product,i) in provider_products2" :key="i">
+        <div v-if="defaultView === true" class="item mt-5"
+            v-for="(product, i) in provider_products2" :key="i">
             <a href="#"
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
@@ -288,17 +552,22 @@ export default {
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
-                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state }}</span>
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
                     <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
-                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon"> ${{product.discount_price}}%</span>
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
                 </div>
                 <div class="product-title mt-2">
                     <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
                 </div>
                 <div class="product-price-info flex items-center justify-between">
-                    <span class="price text-[#F22222] text-base font-black ">${{calculatePrice(product.reguler_price,product.discount_price) }}</span> <span
-                        class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{ product.reguler_price }}</span> <span
-                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{ product.reguler_price - calculatePrice(product.reguler_price,product.discount_price)  }}</span>
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{ calculatePrice(product.reguler_price, product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+    product.reguler_price }}</span> <span
+                        class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                            product.reguler_price - calculatePrice(product.reguler_price, product.discount_price) }}</span>
                     <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
                                 height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -316,12 +585,111 @@ export default {
             </a>
         </div>
 
+
+        <div v-else-if="filterView === true" class="item mt-5" v-for="(product, i) in filterProductsArray2">
+            
+            <a href="#"
+                class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
+                <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
+                    <div class="product-img">
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                            alt="image">
+                    </div>
+                    <div class="brand-logo">
+                        <img :src="product.provider_image" alt="icon">
+                    </div>
+                </div>
+                <div class="product-info mt-2 flex items-center justify-between">
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
+                    <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
+                </div>
+                <div class="product-title mt-2">
+                    <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
+                </div>
+                <div class="product-price-info flex items-center justify-between">
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{calculatePrice(product.reguler_price,product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+                        product.reguler_price }}</span> <span
+                    class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                    product.reguler_price - calculatePrice(product.reguler_price,product.discount_price) }}</span>
+                <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
+                            height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M6.54652 0.976481C6.72572 0.590614 7.27429 0.590616 7.45348 0.976482L8.86602 4.01808C8.93887 4.17496 9.08763 4.28304 9.25934 4.30385L12.5886 4.70734C13.0109 4.75853 13.1804 5.28025 12.8688 5.56992L10.4126 7.85323C10.2859 7.97099 10.2291 8.14587 10.2624 8.31561L10.9074 11.6066C10.9892 12.0241 10.5454 12.3465 10.1737 12.1397L7.24309 10.5092C7.09194 10.4252 6.90806 10.4252 6.75691 10.5092L3.82634 12.1397C3.45456 12.3465 3.01076 12.0241 3.09259 11.6066L3.73763 8.31561C3.7709 8.14587 3.71408 7.97099 3.58739 7.85323L1.13116 5.56992C0.819553 5.28025 0.989072 4.75853 1.41143 4.70734L4.74066 4.30385C4.91237 4.28304 5.06113 4.17495 5.13398 4.01808L6.54652 0.976481Z"
+                                fill="#EFBC21" />
+                        </svg>
+                    </span> <span class="rating-count text-[#6C7A93] text-xs font-normal">4.9 | 230</span></span>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <a :href="product.affiliate_link" target="_blank"
+                    class="btn-translate-z bg-[#112954] opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2 w-full"><span
+                        class="flex items-center"><img src="@/assets/img/icons/offer-arrow-24.svg"
+                            class="mr-2 h-4 w-4 float-right" alt="icon"> View Offer </span></a>
+            </div>
+        </a>
+    </div>
+
+
+    <div v-else-if="searchView === true" class="item mt-5" v-for="(product, i) in searchProducts.slice(12)">
+            
+            <a href="#"
+                class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
+                <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
+                    <div class="product-img">
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                            alt="image">
+                    </div>
+                    <div class="brand-logo">
+                        <img :src="product.provider_image" alt="icon">
+                    </div>
+                </div>
+                <div class="product-info mt-2 flex items-center justify-between">
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
+                    <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
+                            src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
+                        ${{ product.discount_price }}%</span>
+                </div>
+                <div class="product-title mt-2">
+                    <h4 class="mb-2 text-base font-bold  text-[#2B313B]">{{ product.product_name }}</h4>
+                </div>
+                <div class="product-price-info flex items-center justify-between">
+                    <span
+                        class="price text-[#F22222] text-base font-black ">${{calculatePrice(product.reguler_price,product.discount_price)
+                        }}</span> <span class="original-price line-through text-[#D3D7DE] text-xs font-normal">${{
+                        product.reguler_price }}</span> <span
+                    class="saved-price bg-[#26BA65] text-white text-xs font-normal p-1 rounded">Saves ${{
+                    product.reguler_price - calculatePrice(product.reguler_price,product.discount_price) }}</span>
+                <span class="rating-area flex items-top justify-between"><span class="icon mr-1"><svg width="14"
+                            height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M6.54652 0.976481C6.72572 0.590614 7.27429 0.590616 7.45348 0.976482L8.86602 4.01808C8.93887 4.17496 9.08763 4.28304 9.25934 4.30385L12.5886 4.70734C13.0109 4.75853 13.1804 5.28025 12.8688 5.56992L10.4126 7.85323C10.2859 7.97099 10.2291 8.14587 10.2624 8.31561L10.9074 11.6066C10.9892 12.0241 10.5454 12.3465 10.1737 12.1397L7.24309 10.5092C7.09194 10.4252 6.90806 10.4252 6.75691 10.5092L3.82634 12.1397C3.45456 12.3465 3.01076 12.0241 3.09259 11.6066L3.73763 8.31561C3.7709 8.14587 3.71408 7.97099 3.58739 7.85323L1.13116 5.56992C0.819553 5.28025 0.989072 4.75853 1.41143 4.70734L4.74066 4.30385C4.91237 4.28304 5.06113 4.17495 5.13398 4.01808L6.54652 0.976481Z"
+                                fill="#EFBC21" />
+                        </svg>
+                    </span> <span class="rating-count text-[#6C7A93] text-xs font-normal">4.9 | 230</span></span>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <a :href="product.affiliate_link" target="_blank"
+                    class="btn-translate-z bg-[#112954] opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2 w-full"><span
+                        class="flex items-center"><img src="@/assets/img/icons/offer-arrow-24.svg"
+                            class="mr-2 h-4 w-4 float-right" alt="icon"> View Offer </span></a>
+            </div>
+        </a>
+    </div>
 </div>
 
 
 <div class="load-more-btn text-center">
-    <button @click="loadMoreProducts()"
-        class="view-icon py-2.5 px-2.5 mt-8 border transition-all border-[#112954] text-[#112954] rounded-md w-32 hover:text-white">Show
-        More</button>
-</div>
-</template>
+    <button v-if="defaultView === true" @click="loadMoreProducts()"
+        class="view-icon py-2.5 px-2.5 mt-8 border transition-all border-[#112954] text-[#112954] rounded-md w-32 hover:text-white">{{
+        translatedText($wordsArray,'Show More') }}
+    </button>
+
+    <button v-else-if="filterView === true" @click="loadMoreFilterProducts()"
+        class="view-icon py-2.5 px-2.5 mt-8 border transition-all border-[#112954] text-[#112954] rounded-md w-32 hover:text-white">
+        {{ translatedText($wordsArray,'More Products') }}</button>
+</div></template>

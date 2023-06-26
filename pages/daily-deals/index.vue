@@ -6,7 +6,7 @@
 
                 <DailyDealsSearchProduct />
 
-                <DailyDealsComingSoon />
+                <!-- <DailyDealsComingSoon /> -->
 
             </div><!-- container end -->
         </section>
