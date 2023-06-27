@@ -199,7 +199,7 @@ const searchProducts = () =>{
                     </div>
 
                     <NuxtLink to="/daily-deals"
-                        class="daily-deals-btn py-2 my-2 mx-2 text-sm font-semibold text-[#2B313B] bg-white rounded-lg md:mt-0 hover:text-blue-500 ">
+                        class="daily-deals-btn py-2.5 px-6 mx-2 text-sm font-semibold text-[#2B313B] bg-white rounded-lg md:mt-0 border border-[#F5F8FF] hover:text-[#0052fe] hover:border-[#0052fe] ">
                         <span class="flex justify-center items-center"><svg width="15" height="15" viewBox="0 0 15 15"
                                 class="mr-2" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
