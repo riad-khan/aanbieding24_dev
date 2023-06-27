@@ -164,6 +164,7 @@ export default {
                 }
             },
             myChart3: null,
+            isStyleApplied: false,
         }
     },
     mounted() {
@@ -218,6 +219,9 @@ export default {
                 this.config1
             );
 
+        },
+        toggleStyle() {
+            this.isStyleApplied = !this.isStyleApplied;
         },
     }
 }
@@ -343,6 +347,18 @@ input:checked+.slider:before {
 .offer-list-inner thead th:first-child {
     padding-left: 10px;
 }
+.brand-list-wrapper {
+    max-height: 196px;
+    overflow: hidden;
+}
+.brand-list-wrapper.brand-list-full{
+    max-height: 1000px;
+}
+@media only screen and (max-width: 769px) {
+    .brand-list-wrapper {
+        max-height: 212px;
+    }
+}
 </style>
 
 <template>
@@ -394,9 +410,7 @@ input:checked+.slider:before {
                     <h3 class="text-[#2B313B] font-bold text-xl mb-3">{{ details[0].product_title }}</h3>
                     <div class="rating-area flex align-middle justify-between md:justify-start mb-5">
                         <div class=" flex flex-col items-start md:flex-row md:items-center">                
-                        <button class="modal-btn"  type="button">
-                        modal
-                        </button>
+                        <button class="modal-btn"  type="button"> 
                             <div  class="flex items-center justify-between">
                                 <svg width="18" height="17" viewBox="0 0 18 17" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -432,7 +446,7 @@ input:checked+.slider:before {
                              
                                 <span class="review-status text-xs text-[#2B313B] font-bold ml-2">{{ reviewCount[0].average}}</span>
                             </div>
-                        
+                        </button>
 
                         <span class="total-review text-xs text[#6C7A93] font-normal ml-0 mt-2 md:mt-0 md:ml-2">({{ reviewCount[0].count }}
                                 Reviews)</span>
@@ -501,7 +515,7 @@ input:checked+.slider:before {
                     </div>
 
 
-                    <div class="brand-list-wrapper rounded-md border border-[#F5F8FF] bg-white">
+                    <div :class="{'brand-list-full': isStyleApplied}" class="max-h-[196px] brand-list-wrapper rounded-md border border-[#F5F8FF] bg-white ">
                         <div v-for="(feedProduct,i) in relatedFeedsWithoutFilter" class="brands-s flex items-center justify-between py-4 px-3 border-b border-[#F5F8FF]">
                             <div class="modal-brand-logo flex h-4 w-auto">
                                 <img :src="feedProduct.provider_image_url" class="w-full h-auto" alt="logo">
@@ -532,17 +546,19 @@ input:checked+.slider:before {
                         </div>
                         
                     </div>
+                    
                     <div class="show-more-price flex items-center justify-center md:justify-start mt-5">
-                        <a href="" class="text-[#112954] text-sm font-bold flex items-center">Show all prices <svg
+                        <button type="button"  @click="toggleStyle" class="text-[#112954] text-sm font-bold flex items-center">Show all prices <svg
                                 width="17" height="16" viewBox="0 0 17 16" class="ml-2" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
                                     d="M4.73431 5.83441C5.04673 5.52199 5.55327 5.52199 5.86569 5.83441L8.5 8.46873L11.1343 5.83441C11.4467 5.52199 11.9533 5.52199 12.2657 5.83441C12.5781 6.14683 12.5781 6.65336 12.2657 6.96578L9.06569 10.1658C8.75327 10.4782 8.24673 10.4782 7.93431 10.1658L4.73431 6.96578C4.4219 6.65336 4.4219 6.14683 4.73431 5.83441Z"
                                     fill="#112954" />
                             </svg>
-                        </a><span
-                            class="price-list-count bg-[#0052FE] text-white text-[8px] font-bold w-[18px] h-[18px] flex items-center justify-center">+4</span>
+                        </button>
+                        <span class="price-list-count bg-[#0052FE] text-white text-[8px] font-bold w-[18px] h-[18px] flex items-center justify-center">+4</span>
                     </div>
+                    
                 </div>
             </div>
             <div class="filter-options mt-8 md:mt-16 mb-8">
