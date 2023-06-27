@@ -139,13 +139,6 @@ useHead({
             <!-- providers End -->
 
 
-
-         
-
-
-
-
-
             <div class="articles-area mt-10">
                 <div class="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-10">
                     <div>
@@ -170,9 +163,10 @@ useHead({
             </div>
 
             <HomeFavoriteOffers />
-
-
+            
             <HomeMoreOffers />
+
+
         </div> <!-- container end -->
     </section>
 </template>

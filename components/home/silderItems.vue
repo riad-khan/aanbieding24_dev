@@ -4,6 +4,7 @@ import { stripTrailingSlash, splitComma, readingTime, convertTime } from '../../
     const config = useRuntimeConfig();
     const imageUrl = config.public.imageUrl;
 </script>
+
 <template>
 
 <div class="items">
@@ -47,7 +48,7 @@ import { stripTrailingSlash, splitComma, readingTime, convertTime } from '../../
                                 class="btn-translate-z bg-[#112954] opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2 w-full"><span
                                     class="flex items-center"><img src="@/assets/img/icons/offer-arrow-24.svg"
                                         class="mr-2 h-4 w-4 float-right" alt="icon"> View Offer </span></a>
-                        </div>
-                    </a>
+                            </div>
+                            </a>
                 </div>
 </template>

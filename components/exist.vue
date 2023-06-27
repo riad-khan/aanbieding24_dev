@@ -5,7 +5,7 @@
     <Slider />
 </div>
 <!-- Categories Offer Start -->
-            <div class="categories-offer mt-12">
+            <div class="categories-offer mt-12"> 
                 <h2 class="flex items-center text-[#2B313B] font-bold text-[20px] mb-1">Categories Offer <img
                         src="@/assets/img/promo/rocket-icon.png" class="ml-1" alt="icon"></h2>
                 <p class="tag-line text-[#6C7A93] text-sm font-normal mb-6">Popular offers with high discounts</p>
