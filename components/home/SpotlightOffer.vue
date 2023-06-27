@@ -9,8 +9,6 @@ import { stripTrailingSlash, splitComma, readingTime, convertTime, generateSlug 
 // Import Swiper Vue.js components
 
 
-
-
 const onSwiper = (swiper) => {
 
 };
@@ -115,6 +113,9 @@ export default {
 .spotlight-offer-area .swiper-button-next:hover:after {
     color: #112954;
 }
+.offer-img img {
+    float: right;
+}
 </style>
 <template>
     <div class="spotlight-offer-area">
@@ -124,7 +125,7 @@ export default {
                     <span class="font-normal text-sm text-[#F22222]">{{ offer_text }}</span><span
                         class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">Computer & Laptop</span>
                 </div>
-                <div class="grid grid-cols-3">
+                <div class="grid grid-cols-3 z-10 relative">
                     <div class="offer-details col-span-2">
 
                         <nuxt-link :to="'/products/' + generateSlug(products[section_title][0].product_title) + '-' + products[section_title][0].id"
@@ -143,7 +144,7 @@ export default {
 
                     </div>
                 </div>
-                <div class="offer-img">
+                <div class="offer-img z-[1] w-auto pb-6 md:w-2/5 m-0">
                     <img :src="stripTrailingSlash(imageUrl) + products[section_title][0].url" alt="image">
                 </div>
             </div>
@@ -199,14 +200,16 @@ export default {
 
                 <div class="single-offer-box rounded-md p-4">
                     <nuxt-link :to="'/products/' + generateSlug(lastproduct.product_title) + '-' + lastproduct.id"
-                        class="flex items-center text-[#2B313B] font-bold text-base mb-1">{{
+                        class="text-[#2B313B] font-black text-2xl italic leading-tight mb-4 flex">{{
                             lastproduct.product_title }}
                     </nuxt-link>
 
                     <p class="text-[#6C7A93] text-sm font-normal mb-2 w-auto lg:w-[245px]">
                         {{ limitText(lastproduct.short_description, 50) }}
                     </p>
-                    <img :src="stripTrailingSlash(imageUrl) + lastproduct.url" alt="">
+                    <div class=" h-[187px] w-full overflow-hidden p-4">
+                        <img :src="stripTrailingSlash(imageUrl) + lastproduct.url" class=" object-contain w-full h-full" alt="">
+                    </div>
                     <div class="button-area mt-4">
                         <button
                             class="btn-translate-z bg-[#112954] w-full opacity-100 hover:opacity-90 transition text-white flex text-sm font-bold text-center justify-center items-center rounded-md py-[10px] px-2"><span

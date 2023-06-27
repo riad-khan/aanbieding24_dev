@@ -26,8 +26,6 @@ let defaultProductsArray2 = ref([])
 const { data: products } = await useAsyncData('daily_deals_products', () => $fetch(`${apiUrl}/daily-deals-products/0/`));
 
 
-console.log(products.value);
-
 
 onMounted(() => {
     refreshNuxtData("daily_deals_products")
@@ -293,6 +291,7 @@ export default {
     </div>
 
     <div class="center mt-7 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4 justify-between">
+    
           <!-- Default Product -->
           <div v-if="defaultView === true" class="item mt-5"
             v-for="(product, i) in defaultProductsArray1" :key="i">
@@ -300,15 +299,16 @@ export default {
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                     <div class="product-img">
-                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
-                            alt="image">
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url ? product.product_image_url:'//bereken.nl/dummy.jpg'"
+                            alt="image" >
                     </div>
                     <div class="brand-logo">
-                        <img :src="product.provider_image" alt="icon">
+                        <img v-if="product.provider_image" :src="product.provider_image" alt="icon">
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
-                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state }}</span>
+                    <span class="w-fit bg-[#EBF1FF] text-[#0052FE] text-xs font-bold p-2 rounded ">{{ product.state
+                    }}</span>
                     <span class="product-status flex items-center text-[#1D9E54] font-normal text-xs"><img
                             src="@/assets/img/icons/sell-arrow-green.svg" class="mr-1 w-4 h-4" alt="icon">
                         ${{ product.discount_price }}%</span>
@@ -348,11 +348,11 @@ export default {
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                     <div class="product-img">
-                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url ? product.product_image_url:'//bereken.nl/dummy.jpg'"
                             alt="image">
                     </div>
                     <div class="brand-logo">
-                        <img :src="product.provider_image" alt="icon">
+                        <img v-if="product.provider_image" :src="product.provider_image" alt="icon">
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
@@ -394,11 +394,11 @@ export default {
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                     <div class="product-img">
-                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url ? product.product_image_url:'//bereken.nl/dummy.jpg'"
                             alt="image">
                     </div>
                     <div class="brand-logo">
-                        <img :src="product.provider_image" alt="icon">
+                        <img v-if="product.provider_image" :src="product.provider_image" alt="icon">
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
@@ -451,11 +451,11 @@ export default {
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                     <div class="product-img">
-                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url ? product.product_image_url:'//bereken.nl/dummy.jpg'"
                             alt="image">
                     </div>
                     <div class="brand-logo">
-                        <img :src="product.provider_image" alt="icon">
+                        <img v-if="product.provider_image" :src="product.provider_image" alt="icon">
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
@@ -498,11 +498,11 @@ export default {
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                     <div class="product-img">
-                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url ? product.product_image_url:'//bereken.nl/dummy.jpg'"
                             alt="image">
                     </div>
                     <div class="brand-logo">
-                        <img :src="product.provider_image" alt="icon">
+                        <img v-if="product.provider_image" :src="product.provider_image" alt="icon">
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">
@@ -545,11 +545,11 @@ export default {
                 class="flex w-60 mb-3 p-2 flex-col transition-all border border-[#EBF1FF]  rounded-lg hover:shadow-md md:flex-col  bg-white">
                 <div class="img-box flex justify-center items-center relative h-[165px] w-full bg-[#F5F8FF]">
                     <div class="product-img">
-                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url"
+                        <img class="object-cover w-auto rounded-t-lg h-auto mx-auto" :src="product.product_image_url ? product.product_image_url:'//bereken.nl/dummy.jpg'"
                             alt="image">
                     </div>
                     <div class="brand-logo">
-                        <img :src="product.provider_image" alt="icon">
+                        <img v-if="product.provider_image" :src="product.provider_image" alt="icon">
                     </div>
                 </div>
                 <div class="product-info mt-2 flex items-center justify-between">

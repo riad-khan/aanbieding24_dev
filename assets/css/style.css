@@ -1666,6 +1666,15 @@ nav a {
 }
 
 /* Coder End */
+/* Coder start 2*/
+.img-box {
+    overflow: hidden;
+}
+
+.brand-logo img {
+    height: 30px;
+}
+/* Coder End 2*/
 
 @media only screen and (min-width: 768px) and (max-width: 860px) {
     .service-btn:after {

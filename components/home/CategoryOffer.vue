@@ -7,7 +7,7 @@ const imageUrl = config.public.imageUrl;
 
 //const {data : offeredCategories} = await useAsyncData('offered_categories',()=>$fetch(`${apiUrl}/offered-category/`));
 
-
+console.log(props.category);
 
 
 
@@ -18,7 +18,7 @@ onMounted(()=>{
 </script>
 <template>
         <div class="category-offer-area">
-            <div class="flex flex-wrap items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-6">
 
                 <div class="single-category-box border border-[#F5F8FF] shadow-none transition hover:shadow-md rounded-md" v-for="(category,i) in category[section_title]" :key="i">
                     <nuxt-link :to="'/category-details/'+generateSlug(category.category_name)+'-'+category.id">
