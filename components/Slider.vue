@@ -85,18 +85,36 @@ const splitCommaFromCategory = (category) => {
 }
 </style>
 
+
 <script>
 export default {
-    data(){
-        return{
-            products:[],
-        }
+  data() {
+    return {
+      isModalOpen: false,
+      currentProduct: null,
+        products:[],
+    };
+  },
+  methods: {
+    openModal(product) {
+      this.isModalOpen = true;
+      this.currentProduct = product;
+    },
+    closeModal() {
+      this.isModalOpen = false;
+      this.currentProduct = null;
     }
-}
-
+  }
+};
 </script>
-
+<style>
+.modal {
+  width: 400px;
+  max-width: 90%;
+}
+</style>
 <template>
+
     <div>
 
         <swiper :breakpoints="{
@@ -118,7 +136,7 @@ export default {
 
 
             <swiper-slide v-for="(product,index) in props.products[props.section_title]" :key="index">
-               <HomeSilderItems :product="product"  />
+                <HomeSilderItems :product="product" @openModal="openModal(product)" />
             </swiper-slide>
          
 
@@ -126,7 +144,17 @@ export default {
 
         </swiper>
 
-
+        <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" @click.self="closeModal">
+      <div class="modal bg-white rounded-lg p-6">
+        <button @click="closeModal" class="absolute top-0 right-0 m-4">
+          <svg class="h-6 w-6 text-gray-500 hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <h2 class="text-xl mb-4">Product {{ currentProduct.id }}</h2>
+        <p>{{ currentProduct.description }}</p>
+      </div>
+    </div>
    
 
     </div>

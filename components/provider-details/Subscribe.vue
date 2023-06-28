@@ -41,24 +41,25 @@ const submitSubscribe = () => {
 }
 
 </script>
+
+
 <template>
+      
     <div class="subscription-area p-10 text-center">
         <div class="inner-area-subs">
             <h2 class="text-black text-2xl font-bold mb-4">{{ settings[0].title }}
             </h2>
-            <div class="form-area flex flex-col lg:flex-row items-center justify-between">
-                <form action="" method="post" class="w-full lg:w-96" @submit.prevent="submitSubscribe()">
-                    <div class="flex items-center w-full lg:w-auto justify-between">
+            <div class="form-area w-full flex flex-col lg:flex-row items-center justify-between">
+                <form action="" method="post" class="w-full " @submit.prevent="submitSubscribe()">
+                    <div class="flex gap-3 items-center w-full md:w-auto justify-between">
 
-                        <div class="input-area mr-4 flex w-full lg:w-96">
-
+                        <div class="input-area mr-4 flex w-[250px] md:w-[300px] lg:w-96">
                             <input type="hidden" name="" value="">
-                            <div class="relative single-field-wrapper">
+                            <div class="relative w-full single-field-wrapper">
                                 <input type="email" v-model="email"
                                     class="rounded-md bg-white border border-[#A4BCE6] text-[#6C7A93] font-normal text-xs focus:ring-[#3b82f6] focus:outline-none focus:border-[#3b82f6] block flex-1 min-w-0 w-full lg:w-96 p-3"
                                     :placeholder="settings[0].input_placeholder" name="search" required>
                             </div>
-
                         </div>
                         <div class="filter-s">
 
@@ -78,12 +79,17 @@ const submitSubscribe = () => {
                             </div>
 
                         </div>
-                    </div>
-                    <div class="subs-btn w-full lg:w-fit mt-3 lg:mt-0">
+                        
+                    <div class="subs-btn hidden md:flex md:w-fit">
                         <button type="submit"
-                            class="outline-btn btn-translate-z flex w-full lg:w-fit m-auto lg:m-0 bg-[#0052FE] opacity-100 hover:opacity-90 transition text-white justify-center text-sm font-bold py-2.5 px-14 rounded-[5px] ">{{ settings[0].button_text }}</button>
+                            class="outline-btn btn-translate-z flex w-fit lg:w-fit m-auto lg:m-0 bg-[#0052FE] opacity-100 hover:opacity-90 transition text-white justify-center text-sm font-bold py-2.5 px-8 flex-nowrap whitespace-nowrap rounded-[5px] ">{{ settings[0].button_text }}</button>
                     </div>
-
+                    </div>
+    
+                    <div class="subs-btn md:hidden flex w-full lg:w-fit mt-3 lg:mt-0">
+                        <button type="submit"
+                            class="outline-btn btn-translate-z flex w-full lg:w-full m-auto lg:m-0 bg-[#0052FE] opacity-100 hover:opacity-90 transition text-white justify-center text-sm font-bold py-2.5 px-8 flex-nowrap rounded-[5px] ">{{ settings[0].button_text }}</button>
+                    </div>
                     <h2>{{ responseText }}</h2>
                 </form>
 

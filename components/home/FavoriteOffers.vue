@@ -1,11 +1,10 @@
-<script>
 
-</script>
 <template>
+ 
     <div class="fav-offer-area mt-10">
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-10 p-10 bg-[#F5F8FF] rounded-md">
             <div>
-                <h5 class="flex items-center text-[#2B313B] text-xl font-bold mb-[14px]">Our favourite offers in 2022 <img src="@/assets/img/promo/emoji-icon.png" class="ml-1" alt="icon"></h5>
+                <h5 class="flex items-center text-[#2B313B] text-xl font-bold mb-[14px]">Our favourite offers in 202 <img src="@/assets/img/promo/emoji-icon.png" class="ml-1" alt="icon"></h5>
                 <p class="text-[#6C7A93] text-base font-normal leading-relaxed">At Actuele-Aanbiedingen.nl we are also fanatic bargain hunters ourselves. We love beautiful products of good quality, but at the lowest available price. Our top 10 offers from 2022. Be sure to keep an eye on our website during Black Friday and Cyber Monday, what in 2022 on Friday 25 November and Monday 28 November respectively.
 </p>
             </div>
